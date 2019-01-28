@@ -34,6 +34,6 @@ go run main.go -i example.json
 # TODO
 
 - [ ] build it as a web service that render schema on the fly like [json.cn](https://json.cn)
-- [ ] support to read from multi jsno files.
+- [ ] support to read from multi json files.
 - [ ] get input from http request rather than local file.
 - [ ] integrate with graphql server frameworks like [gqlgen](https://github.com/99designs/gqlgen) and auto generate resolver
