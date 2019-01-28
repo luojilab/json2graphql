@@ -1,0 +1,43 @@
+{
+    "platform": {
+        "id": 61,
+        "created": "2018-06-26T18:19:13.701579+08:00",
+        "updated": "2018-11-23T11:19:59.734070+08:00",
+        "ptype": 3,
+        "direction": 0,
+        "account": "2",
+        "account_ext": "",
+        "display_name": "test shop",
+        "key1": "77c3f00f1d40028",
+        "site": "",
+        "api_url": "http://image.example.com/",
+        "auth_valid": true,
+        "is_active": true,
+        "interval": "00:05:00",
+        "users": [
+            {
+                "id": 1,
+                "name": "solo",
+                "sex": null
+            },
+            {
+                "id": 2,
+                "name": "joe",
+                "sex": "male"
+            }
+        ],
+        "extra": {
+            "page_size": "100",
+            "showcase_id": "dev2_2",
+            "recheck_offset": "1800",
+            "cache_key_order": "10003_orders",
+            "parent_platform": "4",
+            "cache_key_refund": "2_refunds",
+            "routing_key_order": "2.*.*",
+            "routing_key_refund": "2.*"
+        },
+        "last_success": null,
+        "company": 5,
+        "admin": 9
+    }
+}

@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 
 	"github.com/urfave/cli"
-	"github.luojilab.com/json2graphqlschema/inspect"
+	"github.com/luojilab/json2graphqlschema/inspect"
 )
 
 var inspectCmd = cli.Command{
@@ -64,9 +64,5 @@ func Execute() {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)
 	}
-}
-
-func main() {
-	Execute()
 }
 

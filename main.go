@@ -1,6 +1,6 @@
-package json2graphqlschema
+package main
 
-import "github.com/luojilab/json2graphqlschema/cmd
+import "github.com/luojilab/json2graphqlschema/cmd"
 
 func main() {
 	cmd.Execute()
