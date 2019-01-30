@@ -4,24 +4,25 @@ package inspect
 假定 json 文件最外层是大括号
 先不处理有 list 的情况
 文件名不支持中文
- */
+*/
 import (
-	"os"
 	"bytes"
-	"fmt"
-	"reflect"
-	"unicode"
-	"io/ioutil"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/url"
+	"os"
 	"path/filepath"
+	"reflect"
 	"text/template"
-	)
+	"unicode"
 
-func unmarshal(filename string) (interface{}, error) {
-	var jsonRaw []byte
+	"github.com/luojilab/json2graphqlschema/utils"
+)
+
+func unmarshal(jsonRaw []byte) (interface{}, error) {
 	var result interface{}
 	var err error
-	jsonRaw, err = ioutil.ReadFile(filename)
 
 	if err != nil {
 		return nil, err
@@ -37,23 +38,23 @@ func unmarshal(filename string) (interface{}, error) {
 }
 
 type Node struct {
-	Name string
+	Name      string
 	ValueKind reflect.Kind
 	ValueType reflect.Type
 	InnerKind reflect.Kind /* 只有 ValueKind 为 Slice 时有值 */
-	InnerType GqlType /* 只有 ValueKind 为 Slice 且 ValueKind 为 slice 时有值 */
-	Children *[] Node
+	InnerType GqlType      /* 只有 ValueKind 为 Slice 且 ValueKind 为 slice 时有值 */
+	Children  *[]Node
 }
 
 func (n *Node) RealType() string {
-	var fieldMapping = map[reflect.Kind]string {
-		reflect.Int: "Int",
-		reflect.Float32: "Float",
-		reflect.Float64: "Float64",
-		reflect.String: "String",
-		reflect.Bool: "Boolean",
-		reflect.Map: "Map",
-		reflect.Slice: "[]",
+	var fieldMapping = map[reflect.Kind]string{
+		reflect.Int:       "Int",
+		reflect.Float32:   "Float",
+		reflect.Float64:   "Float64",
+		reflect.String:    "String",
+		reflect.Bool:      "Boolean",
+		reflect.Map:       "Map",
+		reflect.Slice:     "[]",
 		reflect.Interface: "String # TODO check this field",
 	}
 	realType := fieldMapping[n.ValueKind]
@@ -73,7 +74,7 @@ func (n *Node) RealType() string {
 	} else if realType == "String" {
 		if n.ValueType == reflect.TypeOf(123) {
 			realType = "Int"
-		} else if n.ValueType == reflect.TypeOf(123.4){
+		} else if n.ValueType == reflect.TypeOf(123.4) {
 			realType = "Float64"
 		}
 	}
@@ -81,8 +82,8 @@ func (n *Node) RealType() string {
 }
 
 type GqlType struct {
-	Name string
-	Children *[] Node
+	Name     string
+	Children *[]Node
 }
 
 func uppercaseFirst(s string) string {
@@ -97,10 +98,10 @@ func uppercaseFirst(s string) string {
 
 func getRootType(s string) string {
 	ext := filepath.Ext(s)
-	return uppercaseFirst(s[0:len(s) - len(ext)])
+	return uppercaseFirst(s[0 : len(s)-len(ext)])
 }
 
-func ensureAndAppend(ptr *[]Node, node Node) *[]Node  {
+func ensureAndAppend(ptr *[]Node, node Node) *[]Node {
 	if ptr == nil {
 		arr := make([]Node, 0)
 		ptr = &arr
@@ -126,7 +127,7 @@ func guessIntOrFloat(value interface{}) reflect.Type {
 
 }
 
-func parseList(obj interface{}, gqlTypesPtr *[]GqlType, gqlType GqlType, node Node)  {
+func parseList(obj interface{}, gqlTypesPtr *[]GqlType, gqlType GqlType, node Node) {
 	// 解析 list 类型
 	fmt.Printf("node.Name %v\n", node.Name)
 	innterList := obj.([]interface{})
@@ -141,7 +142,7 @@ func parseList(obj interface{}, gqlTypesPtr *[]GqlType, gqlType GqlType, node No
 		// map 或简单类型 或 list ?
 		if itemKind == reflect.Map {
 			// item 的 type 加入 types
-			innerGqlType := GqlType{Name:uppercaseFirst(node.Name)}
+			innerGqlType := GqlType{Name: uppercaseFirst(node.Name)}
 			Parse(firstItem, gqlTypesPtr, innerGqlType, node)
 			node.InnerType = innerGqlType
 		}
@@ -162,23 +163,23 @@ func Parse(obj interface{}, gqlTypesPtr *[]GqlType, gqlType GqlType, node Node) 
 			valueKind = reflect.TypeOf(value).Kind()
 		}
 
-		child := Node{Name:key, ValueKind:valueKind}
+		child := Node{Name: key, ValueKind: valueKind}
 
 		if reflect.TypeOf(value) == numberType {
 			child.ValueType = guessIntOrFloat(value)
 		}
 
-		if value != nil && valueKind == reflect.Map{
+		if value != nil && valueKind == reflect.Map {
 
-			childGqlType := GqlType{Name:uppercaseFirst(key)}
+			childGqlType := GqlType{Name: uppercaseFirst(key)}
 			Parse(value, gqlTypesPtr, childGqlType, child)
-
 
 		} else if valueKind == reflect.Slice {
 			// 解析 list 类型
 			innterList := value.([]interface{})
 			if len(innterList) == 0 || innterList == nil {
 				child.InnerKind = reflect.Interface
+
 			} else {
 				// 如果列表不为空，取第一个元素列表判断内部元素类型
 				firstItem := innterList[0]
@@ -188,7 +189,7 @@ func Parse(obj interface{}, gqlTypesPtr *[]GqlType, gqlType GqlType, node Node) 
 				// map 或简单类型 或 list ?
 				if itemKind == reflect.Map {
 					// item 的 type 加入 types
-					childGqlType := GqlType{Name:uppercaseFirst(key)}
+					childGqlType := GqlType{Name: uppercaseFirst(key)}
 					Parse(firstItem, gqlTypesPtr, childGqlType, child)
 					child.InnerType = childGqlType
 				}
@@ -212,8 +213,15 @@ func GenerateSchema(gqlTypes []GqlType, tmpl string, output string) error {
 	}
 
 	defer f.Close()
-	t  := template.Must(template.New(tname).Funcs(template.FuncMap{
-		"Deref": func(children *[]Node) []Node { return *children},
+	t := template.Must(template.New(tname).Funcs(template.FuncMap{
+
+		"Deref": func(children *[]Node) []Node {
+			if children != nil {
+				return *children
+			} else {
+				return nil
+			}
+		},
 	}).ParseFiles(tmpl))
 
 	m := map[string]interface{}{"gqlTypes": gqlTypes}
@@ -225,12 +233,35 @@ func GenerateSchema(gqlTypes []GqlType, tmpl string, output string) error {
 	return nil
 
 }
-func Inspect(filename string, output string)  error {
+
+func GenerateSchema2Byte(gqlTypes []GqlType, tmpl string) ([]byte, error) {
+	var buf bytes.Buffer
+	// writer := bufio.NewWriter(&buf)
+	tname := filepath.Base(tmpl)
+	t := template.Must(template.New(tname).Funcs(template.FuncMap{
+
+		"Deref": func(children *[]Node) []Node {
+			if children != nil {
+				return *children
+			} else {
+				return nil
+			}
+		},
+	}).ParseFiles(tmpl))
+
+	m := map[string]interface{}{"gqlTypes": gqlTypes}
+	err := t.ExecuteTemplate(&buf, tname, m)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+func inspect(input []byte, output string, name string) error {
 	// TODO 支持多个文件
 	tmpl := "inspect/templates/schema.gotpl"
-
-	rootTypeName := getRootType(filename)
-	rootObj, err := unmarshal(filename)
+	rootObj, err := unmarshal(input)
 
 	if err != nil {
 		fmt.Printf("error: %v", err.Error())
@@ -241,8 +272,8 @@ func Inspect(filename string, output string)  error {
 
 	mapKind := reflect.Map
 
-	root := Node{Name:"root", ValueKind:t}
-	rootType := GqlType{Name: rootTypeName+"Result"}
+	root := Node{Name: "root", ValueKind: t}
+	rootType := GqlType{Name: name + "Result"}
 	gqlTypes := make([]GqlType, 0)
 	gqlTypesPtr := &gqlTypes
 	if t == mapKind {
@@ -258,4 +289,83 @@ func Inspect(filename string, output string)  error {
 		panic("not supported root type")
 	}
 	return nil
+}
+
+func inspect2Bytes(input []byte, name string) ([]byte, error) {
+	// TODO 支持多个文件
+	tmpl := "inspect/templates/schema.gotpl"
+	rootObj, err := unmarshal(input)
+	fmt.Printf("root obj is %v\n", rootObj)
+	var result []byte
+
+	if err != nil {
+		fmt.Printf("error: %v", err.Error())
+		return nil, err
+	}
+
+	t := reflect.TypeOf(rootObj).Kind()
+
+	mapKind := reflect.Map
+
+	root := Node{Name: "root", ValueKind: t}
+	rootType := GqlType{Name: name + "Result"}
+	gqlTypes := make([]GqlType, 0)
+	gqlTypesPtr := &gqlTypes
+	if t == mapKind {
+		Parse(rootObj, gqlTypesPtr, rootType, root)
+		result, err = GenerateSchema2Byte(gqlTypes, tmpl)
+		if err != nil {
+			fmt.Printf("error: %v\n", err.Error())
+			return nil, err
+		}
+
+	} else {
+		// TODO 顶层为 list
+		panic("not supported root type")
+	}
+	return result, nil
+}
+
+func InspectWithFile(filename, output string) error {
+	input, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	name := getRootType(filename)
+	if err := inspect(input, output, name); err != nil {
+		fmt.Printf("error")
+		return err
+	}
+	return nil
+}
+
+func InspectWithUrl(requestUrl, output, token string) error {
+	// TODO 支持传入参数进行请求
+	var params url.Values
+	if input, code, err := utils.HttpGet(requestUrl, params, token); err != nil {
+		fmt.Printf("error of %s", err)
+		return err
+	} else if code != 200 {
+		fmt.Printf("request error of status code: %d", code)
+		return nil
+	} else {
+		name := getRootType(output)
+		if err := inspect(input, output, name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func InspectWithBytes(input []byte) ([]byte, error) {
+	name := "Root"
+	var err error
+	var result []byte
+	result, err = inspect2Bytes(input, name)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return result, nil
 }

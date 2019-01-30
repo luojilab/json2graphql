@@ -3,6 +3,20 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "github.com/go-chi/ch",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "Pxx+8cipatmpykEo9DpKFqBIOkk=",
+			"path": "github.com/go-chi/chi",
+			"revision": "1a6bb108ccf279c8dac6f9bad857d773b4f9b421",
+			"revisionTime": "2019-01-17T22:35:40Z"
+		},
+		{
+			"path": "github.com/urfave/cl",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "KRlS8eQZGK1oYVCOkIvcMDXabxk=",
 			"path": "github.com/urfave/cli",
 			"revision": "b67dcf995b6a7b7f14fad5fcb7cc5441b05e814b",

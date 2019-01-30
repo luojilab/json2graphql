@@ -3,42 +3,42 @@
 
 
 type Users {
+    sex: String # TODO check this field
     id: Int
     name: String
-    sex: String # TODO check this field
 }
 
 type Extra {
+    recheck_offset: String
+    cache_key_order: String
+    parent_platform: String
     cache_key_refund: String
     routing_key_order: String
     routing_key_refund: String
     page_size: String
     showcase_id: String
-    recheck_offset: String
-    cache_key_order: String
-    parent_platform: String
 }
 
 type Platform {
+    created: String
     account: String
     key1: String
-    auth_valid: Boolean
-    interval: String
-    users: [Users]
-    direction: Int
-    display_name: String
+    site: String
     is_active: Boolean
-    last_success: String # TODO check this field
-    id: Int
-    created: String
-    updated: String
-    ptype: Int
+    interval: String
     company: Int
     admin: Int
+    id: Int
+    updated: String
     account_ext: String
-    site: String
     api_url: String
+    users: [Users]
     extra: Extra
+    direction: Int
+    display_name: String
+    last_success: String # TODO check this field
+    ptype: Int
+    auth_valid: Boolean
 }
 
 type ExampleResult {
