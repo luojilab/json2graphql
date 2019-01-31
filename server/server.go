@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
-	"github.com/luojilab/json2graphqlschema/inspect"
+	"github.com/luojilab/json2graphql/inspect"
 )
 
 func Run(port string) {

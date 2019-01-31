@@ -17,7 +17,7 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/luojilab/json2graphqlschema/utils"
+	"github.com/luojilab/json2graphql/utils"
 )
 
 func unmarshal(jsonRaw []byte) (interface{}, error) {

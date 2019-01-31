@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/luojilab/json2graphqlschema/inspect"
+	"github.com/luojilab/json2graphql/inspect"
 	"github.com/urfave/cli"
 )
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/urfave/cli"
 
-	"github.com/luojilab/json2graphqlschema/server"
+	"github.com/luojilab/json2graphql/server"
 )
 
 var serverCmd = cli.Command{
