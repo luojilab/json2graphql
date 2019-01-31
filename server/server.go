@@ -6,11 +6,22 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/luojilab/json2graphqlschema/inspect"
 )
 
 func Run(port string) {
 	router := chi.NewRouter()
+	cors := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+	router.Use(cors.Handler)
+
 	router.Post("/inspect/", Inspect)
 	fmt.Printf("start listening on port is %s\n", port)
 	err := http.ListenAndServe(port, router)

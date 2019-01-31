@@ -13,6 +13,12 @@
 			"revisionTime": "2019-01-17T22:35:40Z"
 		},
 		{
+			"checksumSHA1": "n9ry/OHiteTTjZOeJHTrEwRSnms=",
+			"path": "github.com/go-chi/cors",
+			"revision": "07727c846d14299758e54a275dd8c81353c01960",
+			"revisionTime": "2018-08-16T15:23:45Z"
+		},
+		{
 			"path": "github.com/urfave/cl",
 			"revision": ""
 		},
