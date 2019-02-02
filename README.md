@@ -1,4 +1,4 @@
-A script to generate graphql schema from json.
+A tool to generate graphql schema from json.
 
 # Usage
 ```bash
@@ -30,10 +30,13 @@ go run main.go -h
 ```bash
 go run main.go -i example.json
 ```
+# Live Demo
+
+https://luojilab.github.io/json2graphql/
 
 # TODO
 
-- [ ] build it as a web service that render schema on the fly like [json.cn](https://json.cn)
+- [x] build it as a web service that render schema on the fly like [json.cn](https://json.cn)
 - [ ] support to read from multi json files.
 - [ ] get input from http request rather than local file.
 - [ ] integrate with graphql server frameworks like [gqlgen](https://github.com/99designs/gqlgen) and auto generate resolver
