@@ -57,7 +57,7 @@ type Extra {
     $('#json-src').change(function() {
       console.log("change:  "  + this.value)
       var data = this.value
-      $.post("https://tools.cncs.io/inspect/", data, function (res) {
+      $.post("http://58.87.84.187:8080/inspect/", data, function (res) {
         console.log("response is "+res)
         var code = Prism.highlight(res, Prism.languages.graphql, 'graphql');
         $('#result').html("\n" + code)
